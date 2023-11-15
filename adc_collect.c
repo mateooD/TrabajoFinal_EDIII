@@ -1,10 +1,10 @@
-#include "LPC17xx.h"
+
 #include "lpc17xx_adc.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_gpio.h"
 
 #define BUFFER_SIZE 5
-uint32_t adcBuffer[BUFFER_SIZE];
+uint16_t adcBuffer[BUFFER_SIZE];
 uint8_t bufferIndex = 0;
 
 #define LED_PORT LPC_GPIO2 // Suponiendo que el LED está en el puerto 2
