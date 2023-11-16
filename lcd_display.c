@@ -34,30 +34,7 @@ void sendNibble(char nibble);
 void Lcd_CmdWrite(char cmd);
 void Lcd_DataWrite(char dat);
 
-int main() {
-    char data[] = "12345"; // Datos a mostrar
 
-    SystemInit();  // Inicializa el sistema
-    SysTick_Configuration(); // Configura el temporizador
-
-    // Configura los pines de datos y control del LCD como salida
-    LPC_GPIO0->FIODIR |= LCD_dataBusMask;
-    LPC_GPIO2->FIODIR |= LCD_ctrlBusMask;
-
-    // Inicializa el LCD
-    Lcd_CmdWrite(0x02);  // Modo 4 bits
-    Lcd_CmdWrite(0x28);  // 2 líneas, matriz 5x7
-    Lcd_CmdWrite(0x0C);  // Enciende el display, cursor apagado
-    Lcd_CmdWrite(0x06);  // Incrementa el cursor
-    Lcd_CmdWrite(0x01);  // Limpia el display
-
-    // Envía datos al LCD
-    for (int i = 0; data[i] != '\0'; ++i) {
-        Lcd_DataWrite(data[i]);
-    }
-
-    while(1); // Bucle infinito
-}
 
 // Implementación de funciones
 void sendNibble(char nibble) {
@@ -93,4 +70,84 @@ void Lcd_DataWrite(char dat) {
     LPC_GPIO2->FIOSET = (1 << LCD_EN);
     Delay_MS(5); // Retardo de 1 ms
     LPC_GPIO2->FIOCLR = (1 << LCD_EN);
+}
+
+
+// Función para convertir un valor flotante a una cadena de caracteres
+
+void floatToString(float value, char *buffer, int decimalPlaces) {
+    // Parte entera de la temperatura
+    int integerPart = (int)value;
+
+    // Manejo de números negativos
+    if (value < 0) {
+        integerPart *= -1;
+        value *= -1;
+    }
+
+    // Parte fraccionaria
+    float fractionalPart = value - integerPart;
+
+    // Convertir la parte entera a una cadena de caracteres
+    int index = 0;
+    while (integerPart > 0) {
+        buffer[index++] = (char)((integerPart % 10) + '0');
+        integerPart /= 10;
+    }
+
+    // Revertir la cadena para que esté en el orden correcto
+    for (int i = 0; i < index / 2; ++i) {
+        char temp = buffer[i];
+        buffer[i] = buffer[index - i - 1];
+        buffer[index - i - 1] = temp;
+    }
+
+    // Agregar el punto decimal
+    buffer[index++] = '.';
+
+    // Convertir la parte fraccionaria a una cadena de caracteres
+    for (int i = 0; i < decimalPlaces; ++i) {
+        fractionalPart *= 10;
+        int digit = (int)fractionalPart;
+        buffer[index++] = (char)(digit + '0');
+        fractionalPart -= digit;
+    }
+
+    buffer[index] = '\0'; // Agregar el carácter nulo al final para terminar la cadena
+}
+
+
+int main() {
+    float temperature = 25.5; // Ejemplo de temperatura (reemplaza con tu valor real)
+
+    SystemInit();  // Inicializa el sistema
+    SysTick_Configuration();
+
+    // Configura los pines de datos y control del LCD como salida
+    LPC_GPIO0->FIODIR |= LCD_dataBusMask;
+    LPC_GPIO2->FIODIR |= LCD_ctrlBusMask;
+
+    // Inicializa el LCD
+    Lcd_CmdWrite(0x02);  // Modo 4 bits
+    Lcd_CmdWrite(0x28);  // 2 líneas, matriz 5x7
+    Lcd_CmdWrite(0x0C);  // Enciende el display, cursor apagado
+    Lcd_CmdWrite(0x06);  // Incrementa el cursor
+    Lcd_CmdWrite(0x01);  // Limpia el display
+
+    char tempString[20]; // Buffer para almacenar la cadena de caracteres
+    char txt[]= "Temp:";
+
+    floatToString(temperature, tempString, 2); // Convierte la temperatura a una cadena con 2 decimales
+
+    // Envía el texto "Temp:" al LCD
+    for (int j = 0; txt[j] != '\0'; ++j) {
+        Lcd_DataWrite(txt[j]);
+    }
+
+    // Envía los datos convertidos al LCD
+    for (int i = 0; tempString[i] != '\0'; ++i) {
+        Lcd_DataWrite(tempString[i]);
+    }
+
+    while(1); // Bucle infinito
 }
