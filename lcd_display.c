@@ -1,6 +1,8 @@
 #include <lpc17xx.h>
 
 // Definición de pines según tu hardware
+
+// Pines utilizados  D7=P0.26 ; D6=P0.25 ;  D5=P0.24 ; D3=P0.23; E=P2.6 ; RW=P2.5 ; RS=P2.4
 #define LCD_D4     23
 #define LCD_D5     24
 #define LCD_D6     25
