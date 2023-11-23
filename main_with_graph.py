@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Configuración del puerto serial
-puerto = '/dev/ttyUSB0'
+#puerto = '/dev/ttyUSB0'  EN CASO DE CORRER CON LINUX
+puerto = 'COM5'
 baudios = 9600
 
 # Inicializa la lista de datos y tiempos
